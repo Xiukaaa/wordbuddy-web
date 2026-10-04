@@ -229,20 +229,46 @@ async function transferFiles(files, onFileProgress, onStage) {
   if (onStage) onStage('done');
 }
 
-// ---- 下载一本书 ----
+// ---- 下载一本书（book.json + 全部单词发音音频）----
 async function downloadBook(bookId, name) {
   if (!port || !writer) { alert('先连接设备'); return; }
   setProgress(0, `准备下载「${name}」…`, '准备中…');
   const dlTitle = $('dl-title');
   if (dlTitle) dlTitle.textContent = `正在把「${name}」装进词搭子…`;
+
   const bookText = await (await fetch(`${bookId}/book.json`)).text();
   const bookBytes = enc.encode(bookText);
   const files = [{ path: `books/${bookId}/book.json`, bytes: bookBytes }];
+
+  // 从 JSONL 里收集每个词的音频文件名（book.json 每行一个词，带 audio 字段）
+  const audioNames = [];
+  for (const line of bookText.split('\n')) {
+    const t = line.trim();
+    if (!t) continue;
+    try {
+      const o = JSON.parse(t);
+      if (o.audio) audioNames.push(o.audio);
+    } catch (e) { /* 跳过元数据行等 */ }
+  }
+
+  // 并行抓取音频（分批，避免浏览器连接耗尽），全部先拿到再统一传输
+  const BATCH = 8;
+  for (let i = 0; i < audioNames.length; i += BATCH) {
+    const batch = audioNames.slice(i, i + BATCH);
+    const got = await Promise.all(batch.map(async (name) => {
+      const res = await fetch(`audio/${name}`);
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      return { path: `audio/${name}`, bytes };
+    }));
+    files.push(...got);
+    setProgress(0, `下载音频 ${Math.min(i + BATCH, audioNames.length)}/${audioNames.length}…`, '准备中…');
+  }
+
   try {
     await transferFiles(files,
       (done, total) => setProgress(done / total, `正在写入…`, `${Math.round(done / total * 100)}%`),
       (stage) => { if (stage === 'commit') setProgress(1, '正在校验…', '提交中…'); else if (stage === 'done') setProgress(1, '下载完成', '100%'); });
-    log(`「${name}」下载完成`);
+    log(`「${name}」下载完成（${files.length} 个文件，含发音）`);
     markBookDone(bookId);
     return true;
   } catch (e) {
