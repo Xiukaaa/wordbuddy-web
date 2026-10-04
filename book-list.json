@@ -1,0 +1,24 @@
+{
+ "books": [
+  {
+   "id": "gaokao",
+   "name": "高考",
+   "totalWords": 3529
+  },
+  {
+   "id": "cet4",
+   "name": "四级",
+   "totalWords": 2581
+  },
+  {
+   "id": "cet6",
+   "name": "六级",
+   "totalWords": 2334
+  },
+  {
+   "id": "ielts",
+   "name": "雅思",
+   "totalWords": 3440
+  }
+ ]
+}

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>词搭子 WordBuddy · 网页管理台（UI 设计稿）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #FDF7F3;
+    --surface: #FFFFFF;
+    --ink: #5C5046;
+    --ink-soft: #A2998D;
+    --ink-faint: #C8BEB4;
+    --accent: #F5BE7E;
+    --accent-dark: #D99A56;
+    --accent-deep: #C07E3C;
+    --accent-soft: #FBEBD8;
+    --peach: #F6C79B;
+    --peach-soft: #FBEEDB;
+    --line: #F1E7E1;
+    --shadow: 0 8px 22px -14px rgba(60, 40, 20, .30);
+    --font-title: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif;
+    --font-round: "Quicksand", "Noto Sans SC", sans-serif;
+    --font-body: "Noto Sans SC", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 8% -6%, var(--accent-soft), transparent 58%),
+      radial-gradient(900px 480px at 96% -6%, var(--peach-soft), transparent 58%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  button { font-family: var(--font-round); cursor: pointer; border: none; }
+  button:disabled { cursor: not-allowed; }
+
+  /* ============ 布局 ============ */
+  .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+
+  /* ---------- 侧边栏 ---------- */
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(6px);
+    border-right: 1px solid var(--line);
+    padding: 30px 20px 26px;
+    display: flex; flex-direction: column; gap: 28px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .egg {
+    width: 40px; height: 46px; flex: none;
+    border-radius: 50% 50% 48% 52% / 58% 58% 42% 42%;
+    background: linear-gradient(160deg, #FBEBD8, #F5BE7E);
+    box-shadow: inset -3px -4px 6px rgba(0,0,0,.06);
+    position: relative;
+  }
+  .brand .egg::after {
+    content: ""; position: absolute; inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 34% 34%, rgba(255,255,255,.85) 0 12%, transparent 38%);
+  }
+  .brand .name { font-family: var(--font-title); font-size: 26px; line-height: 1; letter-spacing: .02em; }
+  .brand .name small { display: block; font-family: var(--font-round); font-weight: 600; font-size: 11px; color: var(--ink-soft); letter-spacing: .06em; margin-top: 4px; }
+
+  .device {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 14px 14px 13px; box-shadow: var(--shadow);
+  }
+  .device .cap { font-family: var(--font-round); font-weight: 600; font-size: 10.5px; letter-spacing: .08em; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 8px; }
+  .device .row { display: flex; align-items: center; gap: 9px; }
+  .device .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-faint); flex: none; }
+  .device .dot.ok { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .device .status { font-family: var(--font-round); font-weight: 700; font-size: 13px; color: var(--ink); flex: 1; }
+  .device .btn-connect {
+    background: var(--accent-soft); color: var(--accent-dark); font-weight: 700; font-size: 12px;
+    padding: 7px 14px; border-radius: 999px; transition: background .15s ease, transform .12s ease;
+  }
+  .device .btn-connect:hover { background: #F7E4CC; }
+  .device .btn-connect:active { transform: translateY(1px); }
+
+  .nav { display: flex; flex-direction: column; gap: 4px; }
+  .nav .nav-label { font-family: var(--font-round); font-weight: 600; font-size: 10.5px; letter-spacing: .08em; color: var(--ink-faint); text-transform: uppercase; padding: 0 12px; margin-bottom: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 12px; border-radius: 13px; width: 100%; text-align: left;
+    background: transparent; color: var(--ink-soft); font-weight: 600; font-size: 14px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-item svg { width: 20px; height: 20px; flex: none; }
+  .nav-item .t { flex: 1; }
+  .nav-item .sub { display: block; font-family: var(--font-round); font-weight: 500; font-size: 11px; color: var(--ink-faint); margin-top: 1px; }
+  .nav-item:hover { background: var(--accent-soft); color: var(--accent-dark); }
+  .nav-item.active { background: var(--accent-soft); color: var(--accent-deep); box-shadow: inset 3px 0 0 var(--accent); }
+  .nav-item.active .sub { color: var(--accent-dark); }
+
+  .side-pet {
+    margin-top: auto; display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(160deg, var(--peach-soft), var(--accent-soft));
+    border-radius: 16px; padding: 12px 14px;
+  }
+  .side-pet .pet {
+    width: 40px; height: 46px; flex: none; position: relative;
+    border-radius: 50% 50% 48% 52% / 58% 58% 42% 42%;
+    background: linear-gradient(160deg, #FBEBD8, #F5BE7E);
+    box-shadow: inset -3px -4px 6px rgba(0,0,0,.06);
+  }
+  .side-pet .pet .eye { position: absolute; top: 44%; width: 4px; height: 5px; border-radius: 50%; background: var(--ink); }
+  .side-pet .pet .eye.l { left: 34%; } .side-pet .pet .eye.r { right: 34%; }
+  .side-pet .pet .mouth { position: absolute; top: 58%; left: 50%; transform: translateX(-50%); width: 7px; height: 4px; border-bottom: 1.6px solid var(--ink); border-radius: 0 0 8px 8px; }
+  .side-pet .txt { font-family: var(--font-round); font-weight: 600; font-size: 12.5px; line-height: 1.5; color: var(--ink); }
+  .side-pet .txt small { display: block; font-weight: 500; font-size: 11px; color: var(--ink-soft); }
+
+  /* ---------- 内容区 ---------- */
+  .main { padding: 52px 56px 96px; max-width: 1080px; }
+  .page { display: none; animation: fade .25s ease; }
+  .page.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .page-head { margin-bottom: 36px; }
+  .page-head .eyebrow { font-family: var(--font-round); font-weight: 700; font-size: 12px; letter-spacing: .1em; color: var(--accent-dark); text-transform: uppercase; margin-bottom: 8px; }
+  .page-head h2 { font-family: var(--font-title); font-weight: 400; font-size: clamp(28px, 4.5vw, 38px); line-height: 1.15; margin: 0 0 10px; letter-spacing: .02em; }
+  .page-head h2 .accent { color: var(--accent-dark); }
+  .page-head .sub { font-family: var(--font-round); font-weight: 500; font-size: 14px; color: var(--ink-soft); max-width: 640px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+
+  /* ============ 页1：下载词书 ============ */
+  .flow { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin: 0 0 34px; }
+  .stepper { display: flex; align-items: center; flex: 1; list-style: none; margin: 0; padding: 0; }
+  .stepper .step { display: flex; align-items: center; }
+  .stepper .step:not(:last-child)::after { content: ""; width: 26px; height: 1.5px; background: var(--line); margin: 0 14px; transition: background .2s ease; }
+  .stepper .step.done::after { background: var(--accent); }
+  .stepper .step .dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1.5px solid var(--line); background: var(--surface);
+    transition: all .2s ease;
+  }
+  .stepper .step .lbl { margin-left: 9px; font-weight: 600; font-size: 12.5px; color: var(--ink-faint); white-space: nowrap; transition: color .2s ease; }
+  .stepper .step.done .dot { background: var(--accent); border-color: var(--accent); }
+  .stepper .step.done .lbl { color: var(--accent-dark); }
+  .stepper .step.current .dot { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .stepper .step.current .lbl { color: var(--ink); }
+
+  .flow-hint { font-family: var(--font-round); font-weight: 600; font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; }
+  .flow-hint.ok { color: var(--accent-dark); }
+
+  .books { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 22px; }
+  .book {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 24px 24px 28px 28px; padding: 28px 26px 24px;
+    display: flex; flex-direction: column; gap: 20px;
+    box-shadow: var(--shadow);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .book:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 16px 32px -18px rgba(60, 40, 20, .42); }
+  .book .name { font-family: var(--font-title); font-weight: 400; font-size: 26px; letter-spacing: .02em; }
+  .book .meta { font-family: var(--font-round); font-weight: 500; font-size: 12.5px; color: var(--ink-soft); }
+  .book .dl {
+    background: linear-gradient(180deg, #F9D5A3 0%, var(--accent) 60%, var(--accent-dark) 100%);
+    color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .04em;
+    padding: 12px 0; border-radius: 14px;
+    box-shadow: inset 0 2px rgba(255,255,255,.3), 0 5px 14px -6px rgba(200, 110, 40, .55);
+    transition: transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .book .dl:hover:not(:disabled) { box-shadow: inset 0 2px rgba(255,255,255,.35), 0 7px 18px -6px rgba(200, 110, 40, .75); }
+  .book .dl:active:not(:disabled) { transform: translateY(2px); }
+  .book .dl:disabled { opacity: .45; }
+  .book .dl.done { background: var(--accent-soft); color: var(--accent-deep); box-shadow: none; cursor: default; opacity: 1; }
+
+  .recent { margin: 34px 0 0; font-family: var(--font-round); font-weight: 500; font-size: 12px; color: var(--ink-faint); }
+
+  /* 下载进度面板 */
+  .dl-panel { display: none; margin-top: 30px; padding: 26px 28px 24px; }
+  .dl-panel .dl-title { font-family: var(--font-round); font-weight: 700; font-size: 15px; margin: 0 0 20px; }
+  .dl-panel .stages { display: flex; justify-content: space-between; margin-bottom: 10px; font-family: var(--font-round); font-weight: 600; font-size: 11.5px; color: var(--ink-faint); }
+  .dl-panel .stages span { transition: color .2s ease; }
+  .dl-panel .stages span.on { color: var(--accent-dark); }
+  .dl-panel .bar-wrap { height: 11px; background: var(--accent-soft); border-radius: 999px; overflow: hidden; }
+  .dl-panel .bar { height: 100%; width: 0; background: linear-gradient(90deg, #F9D5A3, var(--accent), var(--accent-dark)); border-radius: 999px; transition: width .2s linear; }
+  .dl-panel .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; font-family: var(--font-round); }
+  .dl-panel .pct { font-weight: 700; font-size: 15px; color: var(--accent-dark); }
+  .dl-panel .status { font-weight: 600; font-size: 12.5px; color: var(--ink-soft); }
+  .dl-panel .log { margin-top: 18px; display: none; background: var(--bg); border-radius: 12px; padding: 12px 14px; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 11.5px; line-height: 1.8; color: var(--ink-soft); }
+  .dl-panel.done .log { display: block; }
+  .dl-panel .done-note { display: none; align-items: center; gap: 8px; margin-top: 18px; color: var(--accent-deep); font-family: var(--font-round); font-weight: 700; font-size: 13.5px; }
+  .dl-panel.done .done-note { display: flex; }
+
+  /* ============ 页2：下载音频 ============ */
+  .sec { margin-bottom: 46px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .sec-head h3 { font-family: var(--font-title); font-weight: 400; font-size: 22px; margin: 0; letter-spacing: .02em; }
+  .sec-head .hint { font-family: var(--font-round); font-weight: 500; font-size: 12.5px; color: var(--ink-soft); }
+
+  .audio-item {
+    display: flex; align-items: center; gap: 18px;
+    padding: 18px 22px; border: 1px solid var(--line); border-radius: 18px;
+    background: var(--surface); box-shadow: var(--shadow); margin-bottom: 12px;
+    transition: border-color .15s ease;
+  }
+  .audio-item:hover { border-color: var(--accent); }
+  .audio-item .cover {
+    width: 46px; height: 46px; flex: none; border-radius: 14px;
+    background: linear-gradient(160deg, var(--accent-soft), var(--peach-soft));
+    display: flex; align-items: center; justify-content: center; color: var(--accent-dark);
+  }
+  .audio-item .cover svg { width: 24px; height: 24px; }
+  .audio-item .info { flex: 1; min-width: 0; }
+  .audio-item .info .t { font-weight: 700; font-size: 15px; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .audio-item .info .d { font-family: var(--font-round); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .audio-item .btn {
+    background: var(--accent-soft); color: var(--accent-dark); font-weight: 700; font-size: 13px;
+    padding: 9px 18px; border-radius: 999px; flex: none; transition: background .15s ease;
+  }
+  .audio-item .btn:hover { background: #F7E4CC; }
+
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-round); font-weight: 700; font-size: 11px; padding: 3px 9px; border-radius: 999px; line-height: 1.4; }
+  .tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .tag.text { color: var(--accent-deep); background: var(--accent-soft); }
+  .tag.audio { color: var(--ink-soft); background: #F1EEEA; }
+  .tag.plan { color: var(--accent-dark); background: var(--accent-soft); }
+
+  .dropzone {
+    border: 1.6px dashed var(--ink-faint); border-radius: 18px; padding: 36px 20px;
+    text-align: center; background: var(--surface); transition: border-color .15s ease, background .15s ease;
+  }
+  .dropzone:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .dropzone .big { font-family: var(--font-round); font-weight: 700; font-size: 14px; color: var(--ink); }
+  .dropzone .small { font-family: var(--font-round); font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+  .dropzone .pick { display: inline-block; margin-top: 14px; color: var(--accent-dark); font-weight: 700; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ============ 页3：管理萌宠（占位） ============ */
+  .pet-hero {
+    padding: 44px 28px 38px; text-align: center; margin-bottom: 28px;
+    background:
+      radial-gradient(320px 200px at 50% -30%, var(--accent-soft), transparent 70%),
+      var(--surface);
+  }
+  .pet-hero .big-egg {
+    width: 96px; height: 110px; margin: 0 auto 20px; position: relative;
+    border-radius: 50% 50% 48% 52% / 58% 58% 42% 42%;
+    background: linear-gradient(160deg, #FBEBD8, #F5BE7E);
+    box-shadow: inset -6px -8px 12px rgba(0,0,0,.06), 0 16px 30px -18px rgba(200,110,40,.5);
+  }
+  .pet-hero .big-egg::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.9) 0 14%, transparent 42%); }
+  .pet-hero .big-egg .eye { position: absolute; top: 43%; width: 8px; height: 10px; border-radius: 50%; background: var(--ink); z-index: 1; }
+  .pet-hero .big-egg .eye.l { left: 34%; } .pet-hero .big-egg .eye.r { right: 34%; }
+  .pet-hero .big-egg .mouth { position: absolute; top: 57%; left: 50%; transform: translateX(-50%); width: 14px; height: 7px; border-bottom: 2.5px solid var(--ink); border-radius: 0 0 14px 14px; z-index: 1; }
+  .pet-hero .badge { display: inline-block; font-family: var(--font-round); font-weight: 700; font-size: 12px; color: var(--accent-dark); background: var(--accent-soft); padding: 5px 14px; border-radius: 999px; margin-bottom: 16px; }
+  .pet-hero h3 { font-family: var(--font-title); font-weight: 400; font-size: 24px; margin: 0 0 12px; }
+  .pet-hero p { font-family: var(--font-round); font-weight: 500; font-size: 14px; color: var(--ink-soft); max-width: 480px; margin: 0 auto; }
+
+  .hint-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+  .hint-card { padding: 22px 22px 20px; position: relative; }
+  .hint-card .tag.plan { position: absolute; top: 16px; right: 16px; }
+  .hint-card .h-emoji { font-size: 24px; margin-bottom: 12px; }
+  .hint-card h4 { font-family: var(--font-round); font-weight: 700; font-size: 15px; margin: 0 0 6px; color: var(--ink); }
+  .hint-card p { font-family: var(--font-round); font-weight: 500; font-size: 12.5px; color: var(--ink-soft); margin: 0; }
+  .footnote { margin-top: 26px; font-family: var(--font-round); font-weight: 500; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
+
+  /* ============ 页4：统计学习（占位） ============ */
+  .stats-intro {
+    padding: 20px 24px; margin-bottom: 28px;
+    border-left: 4px solid var(--accent); background: var(--surface);
+    box-shadow: var(--shadow); border-radius: 0 16px 16px 0;
+    font-family: var(--font-round); font-weight: 600; font-size: 14px; color: var(--ink);
+  }
+  .stats-intro span { color: var(--accent-dark); }
+  .stat-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+  .stat-tile { padding: 24px 24px 22px; text-align: left; position: relative; }
+  .stat-tile .tag.plan { position: absolute; top: 16px; right: 16px; }
+  .stat-tile .big { font-family: var(--font-round); font-weight: 700; font-size: 34px; line-height: 1; color: var(--accent-dark); margin: 10px 0 8px; }
+  .stat-tile .big .unit { font-size: 16px; color: var(--ink-soft); font-weight: 600; margin-left: 4px; }
+  .stat-tile .lbl { font-family: var(--font-round); font-weight: 600; font-size: 13.5px; color: var(--ink); }
+  .stat-tile .lbl small, .stat-tile .lbl.small { display: block; font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .stat-tile .say { font-family: var(--font-round); font-weight: 600; font-size: 15px; color: var(--ink); line-height: 1.6; }
+  .stat-tile .say small { display: block; font-weight: 500; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+
+  .draft-note {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-family: var(--font-round); font-weight: 500; font-size: 11.5px; color: var(--ink-faint);
+  }
+
+  /* ============ 响应式 ============ */
+  @media (max-width: 880px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px; padding: 16px; }
+    .brand { margin-right: auto; }
+    .device { order: 3; width: 100%; }
+    .nav { order: 4; flex-direction: row; flex-wrap: wrap; gap: 6px; width: 100%; }
+    .nav .nav-label { display: none; }
+    .nav-item { width: auto; flex: 1 1 auto; }
+    .nav-item .sub { display: none; }
+    .side-pet { display: none; }
+    .main { padding: 28px 18px 64px; }
+    .flow { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ 侧边栏 ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="egg"></div>
+      <div class="name">词搭子<small>WORD BUDDY · 管理台</small></div>
+    </div>
+
+    <div class="device">
+      <div class="cap">设备状态</div>
+      <div class="row">
+        <span class="dot" id="dev-dot"></span>
+        <span class="status" id="dev-status">未连接</span>
+        <button class="btn-connect" id="btn-connect">连接设备</button>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">管理</div>
+      <button class="nav-item active" data-page="page-books">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4z"/><path d="M20 4h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7z"/></svg>
+        <span class="t">下载词书<span class="sub">把词书装进设备</span></span>
+      </button>
+      <button class="nav-item" data-page="page-audio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="2"/><rect x="17" y="14" width="4" height="6" rx="2"/></svg>
+        <span class="t">下载音频<span class="sub">听力素材</span></span>
+      </button>
+      <button class="nav-item" data-page="page-pet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="3.2"/><circle cx="6.6" cy="11.2" r="1.6"/><circle cx="10.2" cy="7.6" r="1.6"/><circle cx="13.8" cy="7.6" r="1.6"/><circle cx="17.4" cy="11.2" r="1.6"/></svg>
+        <span class="t">管理萌宠<span class="sub">你的背词搭子</span></span>
+      </button>
+      <button class="nav-item" data-page="page-stats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/><circle cx="10" cy="11" r="1.4"/><circle cx="18" cy="8" r="1.4"/></svg>
+        <span class="t">统计学习<span class="sub">一起走了多远</span></span>
+      </button>
+    </nav>
+
+    <div class="side-pet">
+      <div class="pet"><span class="eye l"></span><span class="eye r"></span><span class="mouth"></span></div>
+      <div class="txt">今天也一起背词吧<small>陪你坚持的第 1 天</small></div>
+    </div>
+  </aside>
+
+  <!-- ============ 内容区 ============ -->
+  <main class="main">
+
+    <!-- ===== 页1：下载词书 ===== -->
+    <section class="page active" id="page-books">
+      <div class="page-head">
+        <div class="eyebrow">内容导入 · 词书</div>
+        <h2>选一本词书，<span class="accent">陪你的萌宠长大</span></h2>
+      </div>
+
+      <div class="flow">
+        <ol class="stepper" id="stepper">
+          <li class="step current" data-step="1"><span class="dot"></span><span class="lbl">连接设备</span></li>
+          <li class="step" data-step="2"><span class="dot"></span><span class="lbl">选词书</span></li>
+          <li class="step" data-step="3"><span class="dot"></span><span class="lbl">下载写入</span></li>
+          <li class="step" data-step="4"><span class="dot"></span><span class="lbl">完成</span></li>
+        </ol>
+        <div class="flow-hint" id="flow-hint">未连接 · 先到左上角连接设备</div>
+      </div>
+
+      <div class="books" id="book-list">
+        <!-- 词书由 app.js 从 /book-list.json 加载 -->
+      </div>
+
+      <p class="recent" id="recent" style="display:none">最近下载：</p>
+
+      <div class="panel dl-panel" id="dl-panel">
+        <p class="dl-title" id="dl-title">正在把「四级高频词」装进词搭子…</p>
+        <div class="stages" id="dl-stages"><span>蛋期</span><span>幼年</span><span>少年</span><span>毕业</span></div>
+        <div class="bar-wrap"><div class="bar" id="dl-bar"></div></div>
+        <div class="foot"><span class="pct" id="dl-pct">0%</span><span class="status" id="dl-status">准备中…</span></div>
+        <div class="log" id="dl-log"></div>
+        <div class="done-note"><span>🎉</span><span id="dl-done-text">下载完成，去单词机上看看吧</span></div>
+      </div>
+    </section>
+
+    <!-- ===== 页2：下载音频 ===== -->
+    <section class="page" id="page-audio">
+      <div class="page-head">
+        <div class="eyebrow">内容导入 · 听力</div>
+        <h2>下载<span class="accent">听力素材</span></h2>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h3>预置音频</h3>
+          <span class="hint">已随固件内置到设备</span>
+        </div>
+        <p class="hint" style="color:var(--ink-soft);margin:0;">预置听力素材（带逐句文本）随固件内置到设备，无需网页下载，可在设备上直接播放、调倍速。</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h3>用户导入音频</h3>
+          <span class="hint">没有文本，只能裸播</span>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <div class="big">把 mp3 拖进来，或 <span class="pick">选择文件</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 页3：管理萌宠（占位） ===== -->
+    <section class="page" id="page-pet">
+      <div class="page-head">
+        <div class="eyebrow">萌宠</div>
+        <h2>管理<span class="accent">你的背词搭子</span></h2>
+      </div>
+
+      <div class="panel pet-hero">
+        <div class="big-egg"><span class="eye l"></span><span class="eye r"></span><span class="mouth"></span></div>
+        <h3>喂它、摸摸它、陪它背词……</h3>
+        <p>它会长大，会有情绪，会陪你坚持。</p>
+      </div>
+
+      <div class="sec-head"><h3>将来会有什么</h3></div>
+      <div class="hint-grid">
+        <div class="panel hint-card">
+          <div class="h-emoji">🫶</div>
+          <h4>陪伴状态</h4>
+          <p>它今天心情如何、有没有想让你陪它背几个词。</p>
+        </div>
+        <div class="panel hint-card">
+          <div class="h-emoji">🌱</div>
+          <h4>一起成长</h4>
+          <p>背会一个词，它就长大一点，看得见你们一起走过的路。</p>
+        </div>
+        <div class="panel hint-card">
+          <div class="h-emoji">📷</div>
+          <h4>相处时光</h4>
+          <p>记录你和它相处的样子，攒成只属于你们的回忆。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 页4：统计学习（占位） ===== -->
+    <section class="page" id="page-stats">
+      <div class="page-head">
+        <div class="eyebrow">数据</div>
+        <h2>看看你和词搭子<span class="accent">一起走了多远</span></h2>
+      </div>
+
+      <div class="sec-head"><h3>想要的语气</h3></div>
+      <div class="stat-tiles">
+        <div class="panel stat-tile">
+          <div class="lbl">已连续陪伴</div>
+          <div class="big">N<span class="unit">天</span></div>
+          <div class="lbl small">一天都没落下</div>
+        </div>
+        <div class="panel stat-tile">
+          <div class="say">今天该复习 <b>12</b> 个词了，别让它们忘了。</div>
+          <small>到期复习</small>
+        </div>
+        <div class="panel stat-tile">
+          <div class="say">你们已经一起背会了 <b>3,120</b> 个词。</div>
+          <small>累计成长</small>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.nav-item').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+      document.getElementById(btn.dataset.page).classList.add('active');
+    });
+  });
+</script>
+<input type="file" id="file-input" accept=".mp3" hidden>
+<script src="app.js"></script>
+</body>
+</html>
