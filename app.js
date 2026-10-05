@@ -4,7 +4,7 @@
 const RAW_CHUNK_SIZE = 8192;
 const WRITE_SLICE_BYTES = 128; // 128B 是实测稳定值；256/512 会触发 raw-chunk 超时（链路丢数据）
 const WRITE_GAP_MS = 2; // 1ms 会让 Web Serial 底层报 UnknownError（写太快驱动顶不住），2ms 才稳
-const BAUD = 2000000;
+const BAUD = 460800; // 与固件 custom_p4_uart_baud 一致；460800 实测不丢字节（2Mbaud 会丢）
 
 // ---- FNV-1a 64（BigInt，和固件一致）----
 function fnv1a64(text) {
