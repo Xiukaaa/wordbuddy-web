@@ -2,7 +2,7 @@
 // 功能：连接 CH343 → 下载词书 / 下载音频（预置 + 用户导入 mp3）
 
 const RAW_CHUNK_SIZE = 8192;
-const WRITE_SLICE_BYTES = 128;
+const WRITE_SLICE_BYTES = 512; // 512B ≈ 2ms @ 2Mbaud，匹配 WRITE_GAP_MS，逼近串口上限
 const WRITE_GAP_MS = 2; // 1ms 会让 Web Serial 底层报 UnknownError（写太快驱动顶不住），2ms 才稳
 const BAUD = 2000000;
 
