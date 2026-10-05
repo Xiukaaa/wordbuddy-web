@@ -261,7 +261,9 @@ async function downloadBook(bookId, name) {
       return { path: `audio/${name}`, bytes };
     }));
     files.push(...got);
-    setProgress(0, `下载音频 ${Math.min(i + BATCH, audioNames.length)}/${audioNames.length}…`, '准备中…');
+    const done = Math.min(i + BATCH, audioNames.length);
+    const frac = audioNames.length ? done / audioNames.length : 1;
+    setProgress(frac, `拉取发音音频 ${done}/${audioNames.length}`, `${Math.round(frac * 100)}%`);
   }
 
   try {
