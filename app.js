@@ -52,6 +52,14 @@ function log(msg) {
   el.scrollTop = el.scrollHeight;
 }
 
+// 从 ack waiter 的 reject 值里提取可读错误：超时是 Error，固件报错是 payload.error
+function errMsg(e) {
+  if (e instanceof Error) return e.message;
+  if (e && typeof e === 'object' && e.error) return e.error;
+  if (typeof e === 'string') return e;
+  try { return JSON.stringify(e); } catch (_) { return String(e); }
+}
+
 async function connect() {
   if (!('serial' in navigator)) { alert('需要 Chrome/Edge，且是 localhost/HTTPS'); return; }
   try {
@@ -136,7 +144,7 @@ async function sendWithRetry(line, phase, index, attempts = 3, timeoutMs = 30000
       return await p;
     } catch (e) {
       if (attempt === attempts) throw e;
-      log(`  ${phase} 重试 ${attempt}/${attempts - 1}（${e.message}）`);
+      log(`  ${phase} 重试 ${attempt}/${attempts - 1}（${errMsg(e)}）`);
     }
   }
 }
@@ -156,7 +164,7 @@ async function assetRawChunk(tid, path, chunk, index) {
       return;
     } catch (e) {
       if (attempt === MAX_ATTEMPTS) throw e;
-      log(`  块 #${index} 重试 ${attempt}/${MAX_ATTEMPTS - 1}（${e.message}）`);
+      log(`  块 #${index} 重试 ${attempt}/${MAX_ATTEMPTS - 1}（${errMsg(e)}）`);
       await recoverRawStream(chunk.length);
     }
   }
@@ -278,7 +286,7 @@ async function downloadBook(bookId, name) {
     return true;
   } catch (e) {
     setProgress(0, '', '');
-    log('下载失败：' + e.message);
+    log('下载失败：' + errMsg(e));
     try { await sendLine({ topic: 'asset/abort', payload: { transferId: transferId() } }); } catch (_) {}
     return false;
   }
@@ -304,7 +312,7 @@ async function downloadUserMp3(file) {
     return true;
   } catch (e) {
     setProgress(0, '', '');
-    log('导入失败：' + e.message);
+    log('导入失败：' + errMsg(e));
     return false;
   }
 }
