@@ -2,8 +2,8 @@
 // 功能：连接 CH343 → 下载词书 / 下载音频（预置 + 用户导入 mp3）
 
 const RAW_CHUNK_SIZE = 8192;
-const WRITE_SLICE_BYTES = 2048; // 搭档方案：固件已修 raw-chunk 竞态，放开节流（2KB/无停顿，靠背压限速）
-const WRITE_GAP_MS = 0;
+const WRITE_SLICE_BYTES = 128; // 先回退稳值；搭档的 2048/0 未实测，真机会丢字节
+const WRITE_GAP_MS = 2; // 1ms 会让 Web Serial 底层报 UnknownError，2ms 才稳
 const BAUD = 2000000; // 与固件 custom_p4_uart_baud 一致（搭档已修 raw-chunk 竞态，2Mbaud 可用）
 
 // ---- FNV-1a 64（BigInt，和固件一致）----
