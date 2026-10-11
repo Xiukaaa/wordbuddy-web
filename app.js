@@ -262,7 +262,9 @@ async function downloadBook(bookId, name) {
     } catch (e) { /* 跳过元数据行等 */ }
   }
 
-  // 并行抓取音频（分批，避免浏览器连接耗尽），全部先拿到再统一传输
+  // 并行抓取音频（分批，避免浏览器连接耗尽），全部先拿到再统一传输；
+  // 这一步只提示"准备中"，真正的进度在下面"正在下载"里按字节显示
+  setProgress(0, '正在准备音频…', '');
   const BATCH = 8;
   for (let i = 0; i < audioNames.length; i += BATCH) {
     const batch = audioNames.slice(i, i + BATCH);
@@ -272,14 +274,11 @@ async function downloadBook(bookId, name) {
       return { path: `audio/${name}`, bytes };
     }));
     files.push(...got);
-    const done = Math.min(i + BATCH, audioNames.length);
-    const frac = audioNames.length ? done / audioNames.length : 1;
-    setProgress(frac, `拉取发音音频 ${done}/${audioNames.length}`, `${Math.round(frac * 100)}%`);
   }
 
   try {
     await transferFiles(files,
-      (done, total) => setProgress(done / total, `正在写入…`, `${Math.round(done / total * 100)}%`),
+      (done, total) => setProgress(done / total, `正在下载…`, `${Math.round(done / total * 100)}%`),
       (stage) => { if (stage === 'commit') setProgress(1, '正在校验…', '提交中…'); else if (stage === 'done') setProgress(1, '下载完成', '100%'); });
     log(`「${name}」下载完成（${files.length} 个文件，含发音）`);
     markBookDone(bookId);
