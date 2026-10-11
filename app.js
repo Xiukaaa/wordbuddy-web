@@ -2,9 +2,9 @@
 // 功能：连接 CH343 → 下载词书 / 下载音频（预置 + 用户导入 mp3）
 
 const RAW_CHUNK_SIZE = 8192;
-const WRITE_SLICE_BYTES = 128; // 128B 是实测稳定值；256/512 会触发 raw-chunk 超时（链路丢数据）
-const WRITE_GAP_MS = 2; // 1ms 会让 Web Serial 底层报 UnknownError（写太快驱动顶不住），2ms 才稳
-const BAUD = 460800; // 与固件 custom_p4_uart_baud 一致；460800 实测不丢字节（2Mbaud 会丢）
+const WRITE_SLICE_BYTES = 2048; // 搭档方案：固件已修 raw-chunk 竞态，放开节流（2KB/无停顿，靠背压限速）
+const WRITE_GAP_MS = 0;
+const BAUD = 2000000; // 与固件 custom_p4_uart_baud 一致（搭档已修 raw-chunk 竞态，2Mbaud 可用）
 
 // ---- FNV-1a 64（BigInt，和固件一致）----
 function fnv1a64(text) {
@@ -57,6 +57,9 @@ async function connect() {
   try {
     port = await navigator.serial.requestPort();
     await port.open({ baudRate: BAUD });
+    // CH343 自动复位电路：RTS 高 + DTR 低会把设备按在复位态，导致不回 begin、卡 0%。
+    // 打开后显式置为运行态（DTR 高 / RTS 低），不依赖驱动/浏览器默认电平。
+    try { await port.setSignals({ dataTerminalReady: true, requestToSend: false }); } catch (_) {}
     writer = port.writable.getWriter();
     const info = port.getInfo?.() || {};
     connected = true;
